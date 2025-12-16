@@ -3,7 +3,7 @@ SVM-based fitness evaluation for PSO feature selection.
 
 The PSO-SVM paper uses SVMs with a one-versus-rest strategy as the
 fitness function for feature selection:
-`file:///Users/yasinsezgin/Downloads/Ceng/482/Final%20Project/Papers/Feature%20Selection%20using%20PSO-SVM.pdf`.
+`/Papers/Feature%20Selection%20using%20PSO-SVM.pdf`.
 """
 
 from typing import Optional
@@ -12,6 +12,11 @@ import numpy as np
 
 from .config import SVMConfig
 
+from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.multiclass import OneVsRestClassifier
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
 
 def evaluate_feature_subset_with_svm(
     X: np.ndarray,
@@ -47,11 +52,40 @@ def evaluate_feature_subset_with_svm(
 
     Notes
     -----
-    This is a stub: you should implement this using an SVM implementation
-    (e.g., scikit-learn's `SVC` with one-vs-rest multiclass strategy).
+    Uses `sklearn.svm.SVC` as the SVM classifier. To align with the paper's
+    multiclass setup, we wrap it with `OneVsRestClassifier` (works for binary too).
+    Scaling is included inside the CV pipeline to avoid data leakage.
     """
-    raise NotImplementedError(
-        "evaluate_feature_subset_with_svm is not implemented yet."
+    if num_folds <= 1:
+        raise ValueError("num_folds must be >= 2.")
+
+    svm_config = svm_config or SVMConfig()
+
+    # Ensure feature_mask is a 1D boolean mask of length n_features.
+    feature_mask = np.asarray(feature_mask).ravel().astype(bool)
+    if feature_mask.shape[0] != X.shape[1]:
+        raise ValueError(
+            f"feature_mask length ({feature_mask.shape[0]}) must match X.shape[1] ({X.shape[1]})."
+        )
+
+    # If no features are selected, define worst fitness.
+    if not np.any(feature_mask):
+        return 0.0
+
+    x_selected = X[:, feature_mask]
+
+    base_svc = SVC(kernel=svm_config.kernel, C=svm_config.C, gamma=svm_config.gamma)
+    clf = OneVsRestClassifier(base_svc)
+
+    model = Pipeline(
+        steps=[
+            ("scaler", StandardScaler()),
+            ("clf", clf),
+        ]
     )
+
+    cv = StratifiedKFold(n_splits=num_folds, shuffle=True, random_state=random_state)
+    scores = cross_val_score(model, x_selected, y, cv=cv, scoring="accuracy")
+    return float(np.mean(scores))
 
 
