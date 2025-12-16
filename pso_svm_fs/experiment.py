@@ -9,7 +9,7 @@ and provide utilities to repeat the algorithm multiple times (e.g., 30
 runs as in your project) and average the results.
 """
 
-from typing import Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 import numpy as np
 
@@ -22,7 +22,7 @@ from .svm_fitness import evaluate_feature_subset_with_svm
 def build_fitness_function(
     X: np.ndarray,
     y: np.ndarray,
-    svm_config: Optional<SVMConfig] = None,
+    svm_config: Optional[SVMConfig] = None,
 ) -> Callable[[np.ndarray], float]:
     """
     Create a fitness function that maps a feature mask to an SVM accuracy.

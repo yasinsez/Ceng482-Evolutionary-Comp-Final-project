@@ -2,7 +2,7 @@
 Data loading utilities for PSO-SVM feature selection experiments.
 
 Datasets are expected to live under:
-    Final Project/Datasets/
+    Datasets/
 
 Supported datasets (to be implemented):
 - Breast Cancer Wisconsin Diagnostic (WDBC)
@@ -11,6 +11,8 @@ Supported datasets (to be implemented):
 """
 
 from typing import Tuple
+
+from pathlib import Path
 
 import numpy as np
 
@@ -29,14 +31,21 @@ def load_wdbc_dataset() -> Tuple[np.ndarray, np.ndarray]:
     Notes
     -----
     This is a stub. Implement the actual file loading logic using:
-    `Final Project/Datasets/breast+cancer+wisconsin+diagnostic/wdbc.data`.
+    `Datasets/breast+cancer+wisconsin+diagnostic/wdbc.data`.
     """
+    data_path = (
+        Path(__file__).resolve().parent.parent
+        / "Datasets"
+        / "breast+cancer+wisconsin+diagnostic"
+        / "wdbc.data"
+    )
 
-    with open("Final Project/Datasets/breast+cancer+wisconsin+diagnostic/wdbc.data", "r") as file:
-        data = file.readlines()
-    X = np.array([line.split(",")[2:32] for line in data])
-    y = np.array([line.split(",")[1] for line in data])
-    print(X.shape, y.shape)
+    with data_path.open("r", encoding="utf-8") as f:
+        rows = [line.strip().split(",") for line in f if line.strip()]
+
+    # Format: ID, Diagnosis(M/B), 30 real-valued features
+    X = np.asarray([r[2:32] for r in rows], dtype=float)
+    y = np.asarray([r[1] for r in rows], dtype=str)
     return X, y
 
 
@@ -54,12 +63,25 @@ def load_wine_dataset() -> Tuple[np.ndarray, np.ndarray]:
     Notes
     -----
     This is a stub. Implement the actual file loading logic using:
-    `Final Project/Datasets/wine/wine.data`.
+    `Datasets/wine/wine.data`.
 
     The file format corresponds to the classic UCI Wine dataset described
     in `wine.names`.
     """
-    raise NotImplementedError("load_wine_dataset is not implemented yet.")
+    data_path = (
+        Path(__file__).resolve().parent.parent
+        / "Datasets"
+        / "wine"
+        / "wine.data"
+    )
+
+    with data_path.open("r", encoding="utf-8") as f:
+        rows = [line.strip().split(",") for line in f if line.strip()]
+
+    # Format: class_label, 13 real-valued features
+    y = np.asarray([r[0] for r in rows], dtype=int)
+    X = np.asarray([r[1:] for r in rows], dtype=float)
+    return X, y
 
 
 def load_sonar_dataset() -> Tuple[np.ndarray, np.ndarray]:
@@ -76,12 +98,25 @@ def load_sonar_dataset() -> Tuple[np.ndarray, np.ndarray]:
     Notes
     -----
     This is a stub. Implement the actual file loading logic using:
-    `Final Project/Datasets/connectionist+bench+sonar+mines+vs+rocks/sonar.all-data`.
+    `Datasets/connectionist+bench+sonar+mines+vs+rocks/sonar.all-data`.
 
     See also: `sonar.names` in the same folder for attribute and label
     descriptions (as in the UCI repository).
     """
-    raise NotImplementedError("load_sonar_dataset is not implemented yet.")
+    data_path = (
+        Path(__file__).resolve().parent.parent
+        / "Datasets"
+        / "connectionist+bench+sonar+mines+vs+rocks"
+        / "sonar.all-data"
+    )
+
+    with data_path.open("r", encoding="utf-8") as f:
+        rows = [line.strip().split(",") for line in f if line.strip()]
+
+    # Format: 60 real-valued features, label in last column ("R" or "M")
+    X = np.asarray([r[:-1] for r in rows], dtype=float)
+    y = np.asarray([r[-1] for r in rows], dtype=str)
+    return X, y
 
 
 def get_dataset(
