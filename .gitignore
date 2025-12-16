@@ -1,0 +1,46 @@
+# Project directories to ignore
+/Datasets/
+/Papers/
+
+# File types to ignore
+*.pdf
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+tempCodeRunnerFile.py
+*.tmp
+*.temp
+README_PSO_SVM.md
+
+# Logs
+*.log
+logs/
+
+# Virtual environments
+.env
+.venv/
+venv/
+ENV/
+env.bak/
+venv.bak/
