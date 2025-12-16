@@ -77,6 +77,10 @@ def evaluate_feature_subset_with_svm(
     base_svc = SVC(kernel=svm_config.kernel, C=svm_config.C, gamma=svm_config.gamma)
     clf = OneVsRestClassifier(base_svc)
 
+    # Pipeline for scaling and classification (to avoid data leakage).
+    # StandardScaler is used to standardize the features before classification.
+    # Data leakage is when the model is trained on the test data or the data that is not available at the time of prediction.
+    # This is a common problem in machine learning and it is important to avoid it.
     model = Pipeline(
         steps=[
             ("scaler", StandardScaler()),
