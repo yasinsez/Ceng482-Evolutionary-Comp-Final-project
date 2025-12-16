@@ -13,7 +13,13 @@ from typing import Any, Callable, Dict, List, Optional
 
 import numpy as np
 
-from .config import PSOConfig, SVMConfig, get_default_pso_config, get_default_svm_config
+from .config import (
+    PSOConfig,
+    SVMConfig,
+    get_default_pso_config,
+    get_default_svm_config,
+    get_svm_config_for_dataset,
+)
 from .data_loading import get_dataset
 from .pso import run_pso_feature_selection
 from .svm_fitness import evaluate_feature_subset_with_svm
@@ -78,7 +84,7 @@ def _get_results_base_dir(dataset_name: str, results_dir: Optional[str]) -> str:
     if results_dir is not None:
         base = _Path(results_dir)
     else:
-        # Default: place results under "Final Project/results/<dataset_name>"
+        # Default: place results under "results/<dataset_name>" at the repo root
         base = _Path(__file__).resolve().parent.parent / "results" / dataset_name
 
     base.mkdir(parents=True, exist_ok=True)
@@ -191,7 +197,8 @@ def run_single_experiment(
     pso_config : PSOConfig, optional
         PSO hyperparameters. If None, use `get_default_pso_config()`.
     svm_config : SVMConfig, optional
-        SVM hyperparameters. If None, use `get_default_svm_config()`.
+        SVM hyperparameters. If None, use `get_svm_config_for_dataset(dataset_name)`
+        (paper Table 1 defaults).
     random_state : int, optional
         Seed for reproducibility.
 
@@ -211,6 +218,8 @@ def run_single_experiment(
     """
     if pso_config is None:
         pso_config = get_default_pso_config()
+    if svm_config is None:
+        svm_config = get_svm_config_for_dataset(dataset_name)
 
     X, y = get_dataset(dataset_name)
     num_features = X.shape[1]
@@ -258,7 +267,8 @@ def run_multiple_experiments(
     pso_config : PSOConfig, optional
         PSO hyperparameters.
     svm_config : SVMConfig, optional
-        SVM hyperparameters.
+        SVM hyperparameters. If None, use `get_svm_config_for_dataset(dataset_name)`
+        (paper Table 1 defaults).
     base_random_seed : int, optional
         Base seed; each run can offset it for reproducibility.
     save_results : bool, default True
@@ -297,7 +307,7 @@ def run_multiple_experiments(
     if pso_config is None:
         pso_config = get_default_pso_config()
     if svm_config is None:
-        svm_config = get_default_svm_config()
+        svm_config = get_svm_config_for_dataset(dataset_name)
 
     # Prepare output directory if saving is enabled.
     results_base_dir: Optional[str] = None

@@ -91,7 +91,7 @@ def evaluate_feature_subset_with_svm(
     )
 
     cv = StratifiedKFold(n_splits=num_folds, shuffle=True, random_state=random_state)
-    scores = cross_val_score(model, x_selected, y, cv=cv, scoring="accuracy")
+    scores = cross_val_score(model, x_selected, y, cv=cv, scoring="accuracy", n_jobs=-1)
     return float(np.mean(scores))
 
 

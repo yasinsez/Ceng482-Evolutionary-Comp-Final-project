@@ -4,7 +4,7 @@ Entry point script for running PSO-SVM feature selection experiments.
 This script is intentionally minimal and relies on stub implementations in
 the `pso_svm_fs` package. Once you implement the underlying functions, you can
 use this as a starting point to reproduce experiments similar to those in:
-`file:///Users/yasinsezgin/Downloads/Ceng/482/Final%20Project/Papers/Feature%20Selection%20using%20PSO-SVM.pdf`.
+`/papers/Feature%20Selection%20using%20PSO-SVM.pdf`.
 """
 
 from __future__ import annotations

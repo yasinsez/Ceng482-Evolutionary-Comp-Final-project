@@ -1,91 +1,97 @@
-"""
-Configuration helpers and default hyperparameters for PSO-SVM feature selection.
-
-The specific values (e.g., C and RBF kernel parameters) should be chosen
-following the PSO-SVM paper:
-`Final Project/Papers/Feature Selection using PSO-SVM.pdf`.
-"""
-
 from dataclasses import dataclass
 from typing import Optional
-
 
 @dataclass
 class SVMConfig:
     """
-    Configuration for the SVM classifier used as the PSO fitness evaluator.
+    SVM hyperparameters used in the fitness evaluation.
 
-    Attributes
-    ----------
-    C : float
-        Regularization parameter of the SVM.
-    kernel : str
-        Kernel type to be used in the SVM (e.g., "rbf").
-    gamma : Optional[float]
-        Kernel coefficient for 'rbf', 'poly' and 'sigmoid'.
-        If None, use the library default.
-    r : Optional[float]
-        Paper parameter name for the RBF kernel coefficient. In scikit-learn,
-        this corresponds to `gamma`. If both `gamma` and `r` are provided,
-        `gamma` takes precedence.
+    Notes
+    -----
+    - The paper reports C = 2^12 = 4096.
+    - The paper uses the symbol `r` for the RBF kernel coefficient; in scikit-learn
+      this corresponds to `gamma`. In our code, `r` is mapped to `gamma` when `gamma`
+      is not explicitly set.
     """
 
     # Paper default: C = 2^12 = 4096
     C: float = 4096.0
     kernel: str = "rbf"
     gamma: Optional[float] = None
-    r: Optional[float] = None
-
+    # Paper-style name for the RBF coefficient (mapped to sklearn's `gamma`).
+    r: Optional[float] = 1.0
 
 @dataclass
 class PSOConfig:
     """
-    Configuration for the PSO feature selection algorithm.
+    PSO hyperparameters for binary feature selection.
 
-    Attributes
-    ----------
-    num_particles : int
-        Number of particles in the swarm.
-    num_iterations : int
-        Maximum number of iterations (generations).
-    inertia_weight : float
-        Inertia weight (w) in the velocity update equation.
-    cognitive_coeff : float
-        Cognitive coefficient (c1) for the personal best component.
-    social_coeff : float
-        Social coefficient (c2) for the global best component.
+    Notes
+    -----
+    Some PSO-SVM setups use c1=c2=2.0 as in many PSO references / paper tables.
     """
 
     num_particles: int = 30
     num_iterations: int = 50
+    # Inertia weight (w). Some variants decrease w over time; we keep it fixed here.
     inertia_weight: float = 0.7
-    cognitive_coeff: float = 1.5
-    social_coeff: float = 1.5
+    # Cognitive and social coefficients (c1, c2).
+    cognitive_coeff: float = 2.0
+    social_coeff: float = 2.0
+    v_min: float = -6.0
+    v_max: float = 6.0
+    init_position_prob: float = 0.5
+
+def get_svm_config_for_dataset(dataset_name: str) -> SVMConfig:
+    """
+    Return dataset-specific SVM hyperparameters (from the paper's Table 1).
+
+    The paper reports different `r` (RBF coefficient) values per dataset.
+    We store them in `config.r` (paper name) and later map to sklearn's `gamma`.
+    """
+    config = SVMConfig()
+    
+    # All datasets in the paper use C = 2^12 = 4096
+    config.C = 4096.0
+    
+    name = dataset_name.lower().strip()
+    
+    if name == "wdbc":
+        # WDBC: r = 2^0 = 1
+        config.r = 1.0
+    elif name == "wine":
+        # Wine: r = 2^4 = 16
+        config.r = 16.0
+    elif name == "ionosphere":
+        # Ionosphere: r = 2^-1 = 0.5
+        config.r = 0.5
+    elif name == "sonar":
+        # Sonar: r = 2^0 = 1
+        config.r = 1.0
+    elif name == "vowel":
+        # Vowel: r = 2^4 = 16
+        config.r = 16.0
+    else:
+        # Fallback for unknown datasets (WDBC settings are a safe default)
+        print(
+            f"Warning: no dataset-specific SVM config for {dataset_name!r}; using default r=1."
+        )
+        config.r = 1.0
+        
+    return config
+
+def get_default_pso_config() -> PSOConfig:
+    return PSOConfig()
 
 
 def get_default_svm_config() -> SVMConfig:
     """
-    Get a default SVM configuration.
+    Return a default SVM configuration.
 
     Notes
     -----
-    Defaults are set to match the paper where possible:
-    - C = 2^12 = 4096
-    - `r` (paper) maps to `gamma` (scikit-learn). Set either `gamma` or `r`.
-    See: `file:///Users/yasinsezgin/Downloads/Ceng/482/Final%20Project/Papers/Feature%20Selection%20using%20PSO-SVM.pdf`.
+    This is a generic fallback (C=4096, r=1) when a dataset-specific configuration
+    is not selected explicitly. Prefer `get_svm_config_for_dataset(dataset_name)`
+    to match the paper's Table 1 values.
     """
     return SVMConfig()
-
-
-def get_default_pso_config() -> PSOConfig:
-    """
-    Get a default PSO configuration for feature selection.
-
-    Notes
-    -----
-    Stub: you may later tune these hyperparameters using the experimental
-    setup described in the PSO-SVM paper.
-    """
-    return PSOConfig()
-
-
