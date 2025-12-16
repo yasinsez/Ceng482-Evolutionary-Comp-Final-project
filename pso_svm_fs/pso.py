@@ -45,7 +45,8 @@ def initialize_swarm(
     This is a stub. Implement according to the binary PSO algorithm
     (e.g., Kennedy & Eberhart, 1997).
     """
-    raise NotImplementedError("initialize_swarm is not implemented yet.")
+    while not stopping_criteria_met:
+        for p in range(num_particles):
 
 
 def update_velocities_and_positions(

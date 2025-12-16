@@ -24,11 +24,17 @@ class SVMConfig:
     gamma : Optional[float]
         Kernel coefficient for 'rbf', 'poly' and 'sigmoid'.
         If None, use the library default.
+    r : Optional[float]
+        Paper parameter name for the RBF kernel coefficient. In scikit-learn,
+        this corresponds to `gamma`. If both `gamma` and `r` are provided,
+        `gamma` takes precedence.
     """
 
-    C: float = 1.0
+    # Paper default: C = 2^12 = 4096
+    C: float = 4096.0
     kernel: str = "rbf"
     gamma: Optional[float] = None
+    r: Optional[float] = None
 
 
 @dataclass
@@ -63,9 +69,9 @@ def get_default_svm_config() -> SVMConfig:
 
     Notes
     -----
-    Stub: adjust the default `C` and `gamma` according to the paper
-    (e.g., using the parameter `r` mentioned in the text and Table 1
-    of the PSO-SVM paper).
+    Defaults are set to match the paper where possible:
+    - C = 2^12 = 4096
+    - `r` (paper) maps to `gamma` (scikit-learn). Set either `gamma` or `r`.
     See: `file:///Users/yasinsezgin/Downloads/Ceng/482/Final%20Project/Papers/Feature%20Selection%20using%20PSO-SVM.pdf`.
     """
     return SVMConfig()

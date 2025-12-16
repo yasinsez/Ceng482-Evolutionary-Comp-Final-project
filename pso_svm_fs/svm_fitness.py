@@ -74,7 +74,9 @@ def evaluate_feature_subset_with_svm(
 
     x_selected = X[:, feature_mask]
 
-    base_svc = SVC(kernel=svm_config.kernel, C=svm_config.C, gamma=svm_config.gamma)
+    # Paper uses parameter name `r` for the RBF coefficient; scikit-learn calls it `gamma`.
+    gamma_value = svm_config.gamma if svm_config.gamma is not None else svm_config.r
+    base_svc = SVC(kernel=svm_config.kernel, C=svm_config.C, gamma=gamma_value)
     clf = OneVsRestClassifier(base_svc)
 
     # Pipeline for scaling and classification (to avoid data leakage).
