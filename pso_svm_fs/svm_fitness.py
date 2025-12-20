@@ -25,6 +25,7 @@ def evaluate_feature_subset_with_svm(
     svm_config: Optional[SVMConfig] = None,
     num_folds: int = 10,
     random_state: Optional[int] = None,
+    n_jobs: int = -1,
 ) -> float:
     """
     Evaluate a binary feature subset using an SVM classifier with cross-validation.
@@ -91,7 +92,7 @@ def evaluate_feature_subset_with_svm(
     )
 
     cv = StratifiedKFold(n_splits=num_folds, shuffle=True, random_state=random_state)
-    scores = cross_val_score(model, x_selected, y, cv=cv, scoring="accuracy", n_jobs=-1)
+    scores = cross_val_score(model, x_selected, y, cv=cv, scoring="accuracy", n_jobs=n_jobs)
     return float(np.mean(scores))
 
 

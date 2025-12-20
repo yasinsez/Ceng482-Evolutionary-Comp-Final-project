@@ -22,7 +22,7 @@ def main() -> None:
     This is a stub-style main function. Adjust dataset name, number of runs,
     and configurations as needed for your final experiments.
     """
-    dataset_name = "wdbc"  # e.g., "wdbc", "wine", "sonar"
+    dataset_name = "sonar"  # e.g., "wdbc", "wine", "sonar"
     num_runs = 30
 
     summary = run_multiple_experiments(
